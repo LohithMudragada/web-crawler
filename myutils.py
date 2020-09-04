@@ -18,7 +18,7 @@ def writetofile(fn,r):
     try:
         path = os.path.join(os.path.curdir,'/crawl_res/')
         os.mkdir(path)
-    except Exception as inst:
+    except Exception:
         pass
     if fn=="":
         exttype = r.headers['content-type']
@@ -39,6 +39,7 @@ def extractPage(r,src,table):
     data = str(r.content)
     soup = BeautifulSoup(data,"html.parser")
     links = {link.attrs.get('href') for link in soup.findAll('a', href=True)}
+    count = 0
     for link in links:
         if link=="":
             continue
@@ -62,4 +63,6 @@ def extractPage(r,src,table):
             "CreatedDate":datetime.datetime.utcnow()
         }
         table.insert_one(obj)
+        count += 1
+    return count
         

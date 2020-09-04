@@ -27,11 +27,12 @@ class spyder:
         """
         try:
             requests.get(cfg.source)
+            return True,0
         except:
             table.update_one({"Link":src},{"$set":{
                     "IsCrawled":False
             }})
-            pass
+            return False,0
     
     def getnextlink(self,table):
         """
@@ -58,16 +59,16 @@ class spyder:
         """
             # Function To get all links present in current page and insert in to Database
         """
+        print(obj["Link"])
         src = obj['Link']
         fn = obj['Filepath']
         try:
             r = requests.get(src)
         except Exception as inst:
             self.handleExceptions(inst,table,src)
-            return
         if r.status_code==200:  #if connection is successful
             myutils.writetofile(fn,r) #write page to file
-            myutils.extractPage(r,src,table) #Extract all the links
+            count = myutils.extractPage(r,src,table) #Extract all the links
         table.update_one({"Link":src},{"$set":{
                 "IsCrawled":True,
                 "LastCrawlDate":datetime.datetime.utcnow(),
@@ -76,5 +77,4 @@ class spyder:
                 "ContentLength": len(r.content),
                 "Filepath":fn
         }})
-    
-    
+        return True,count
